@@ -6,6 +6,11 @@ on:
       tag:
         description: "Tag for the release"
         required: true
+      node_version:
+        description: "Specify Node.js version (e.g., '18', '20', 'lts/*')"
+        required: false
+        type: string
+        default: "24"
 
 permissions:
   contents: read
@@ -20,3 +25,8 @@ jobs:
     uses: step-security/reusable-workflows/.github/workflows/actions_release.yaml@v1
     with:
       tag: "${{ github.event.inputs.tag }}"
+      node_version: "${{ github.event.inputs.node_version }}"
+      # The shared workflow checks out without submodules and has no input to
+      # change that, so vendor/core would be empty and @core unresolvable. The
+      # script input runs through eval, so the fetch can be prepended here.
+      script: "git submodule update --init && npm run build"
